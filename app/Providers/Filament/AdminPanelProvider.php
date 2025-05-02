@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Widgets\ProductChart;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -39,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+                ProductChart::class
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -54,5 +56,13 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ProductChart::class,
+            // Tambah widget lain di sini jika perlu
+        ];
     }
 }
