@@ -17,18 +17,37 @@ class MemberResource extends Resource
 {
     protected static ?string $model = Member::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('photo')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Section::make('Informasi Member')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama Lengkap')
+                            ->placeholder('Masukkan nama lengkap')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->columns(1),
+
+                Forms\Components\Section::make('Foto Member')
+                    ->schema([
+                        Forms\Components\FileUpload::make('photo')
+                            ->label('Foto')
+                            ->image()
+                            ->disk('public')
+                            ->directory('members')
+                            ->imagePreviewHeight('150')
+                            ->panelAspectRatio('1:1')
+                            ->panelLayout('compact')
+                            ->placeholder('Unggah foto member...')
+                            ->required(),
+                    ])
+                    ->columns(1)
+                    ->collapsible(),
             ]);
     }
 
@@ -37,20 +56,37 @@ class MemberResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('photo')
-                    ->searchable(),
+
+                Tables\Columns\ImageColumn::make('photo')
+                    ->label('Foto')
+                    ->disk('public')
+                    ->height(40),
+
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('name')
+                    ->label('Cari Nama')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama Mengandung'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['name'], fn ($q) => $q->where('name', 'like', '%' . $data['name'] . '%'));
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
