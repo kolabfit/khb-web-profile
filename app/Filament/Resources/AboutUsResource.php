@@ -51,7 +51,6 @@ class AboutUsResource extends Resource
                                         'Text' => 'Text',
                                         'Number' => 'Number',
                                         'Image' => 'Image',
-                                        'lainnya' => 'Lainnya',
                                     ])
                                     ->placeholder('Pilih tipe konten'),
                             ]),
@@ -122,7 +121,6 @@ class AboutUsResource extends Resource
                         'visi' => 'Visi',
                         'misi' => 'Misi',
                         'nilai' => 'Nilai',
-                        'lainnya' => 'Lainnya',
                     ]),
             ])
             ->actions([
