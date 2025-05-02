@@ -3,39 +3,52 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $modelLabel = 'Product';
+    protected static ?string $pluralModelLabel = 'Products';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Product Name')
                     ->required()
-                    ->maxLength(255),
+                    ->placeholder('e.g., Web Hosting Deluxe')
+                    ->maxLength(255)
+                    ->helperText('Enter the name of the product.'),
+
                 Forms\Components\TextInput::make('price')
-                    ->required()
+                    ->label('Price (Rp)')
                     ->numeric()
-                    ->prefix('$'),
-                Forms\Components\FileUpload::make('image')
-                    ->image()
-                    ->required(),
-                Forms\Components\TextInput::make('product_category_id')
                     ->required()
-                    ->numeric(),
+                    ->prefix('Rp')
+                    ->helperText('Set the price in Rupiah.'),
+
+                Forms\Components\FileUpload::make('image')
+                    ->label('Product Image')
+                    ->image()
+                    ->imagePreviewHeight('150')
+                    ->required(),
+
+                Forms\Components\Select::make('product_category_id')
+                    ->label('Product Category')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->helperText('Select a category for this product.'),
             ]);
     }
 
@@ -43,30 +56,45 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Image')
+                    ->circular()
+                    ->height(60),
+
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Product Name')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->label('Price')
+                    ->money('idr', true) // Menampilkan harga dalam format Rupiah
                     ->sortable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\TextColumn::make('product_category_id')
-                    ->numeric()
-                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Category')
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Created At')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Last Updated')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                // Tambah filter jika dibutuhkan
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(), // Tombol hapus individual
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -78,7 +106,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Tambahkan RelationManager jika ada relasi ke Order atau lainnya
         ];
     }
 
