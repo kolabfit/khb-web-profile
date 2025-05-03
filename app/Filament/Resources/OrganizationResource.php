@@ -17,18 +17,37 @@ class OrganizationResource extends Resource
 {
     protected static ?string $model = Organization::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('logo')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Section::make('Informasi Organisasi')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama Organisasi')
+                            ->placeholder('Masukkan nama organisasi')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->columns(1),
+
+                Forms\Components\Section::make('Logo Organisasi')
+                    ->schema([
+                        Forms\Components\FileUpload::make('logo')
+                            ->label('Logo')
+                            ->image()
+                            ->disk('public')
+                            ->directory('organizations')
+                            ->imagePreviewHeight('150')
+                            ->panelAspectRatio('4:1')
+                            ->panelLayout('compact')
+                            ->placeholder('Unggah logo organisasi...')
+                            ->required(),
+                    ])
+                    ->columns(1)
+                    ->collapsible(),
             ]);
     }
 
@@ -37,20 +56,37 @@ class OrganizationResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Organisasi')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('logo')
-                    ->searchable(),
+
+                Tables\Columns\ImageColumn::make('logo')
+                    ->label('Logo')
+                    ->disk('public')
+                    ->height(40),
+
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('name')
+                    ->label('Cari Organisasi')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama Mengandung'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['name'], fn($q) => $q->where('name', 'like', '%' . $data['name'] . '%'));
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
