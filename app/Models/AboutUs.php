@@ -18,6 +18,7 @@ class AboutUs extends Model
         'text',
         'image',
         'number',
-        'type'
+        'type',
+        'slug',
     ];
 }

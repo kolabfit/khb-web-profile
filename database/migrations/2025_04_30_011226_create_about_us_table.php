@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('image', 255)->nullable();
             $table->integer('number')->nullable();
             $table->enum('type', ['text', 'image', 'number']);
+            $table->string('slug')->required();
             $table->timestamps();
         });
     }

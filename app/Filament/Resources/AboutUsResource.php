@@ -12,12 +12,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class AboutUsResource extends Resource
 {
     protected static ?string $model = AboutUs::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
+
+
 
     public static function form(Form $form): Form
     {
@@ -29,49 +32,64 @@ class AboutUsResource extends Resource
                             ->label('Judul')
                             ->placeholder('Masukkan judul konten')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->live(onBlur: true) // hanya update saat input kehilangan fokus
+                            ->afterStateUpdated(function (string $operation, $state, callable $set) {
+                                $set('slug', Str::slug($state));
+                            })
+                            ->required(),
 
-                        Forms\Components\RichEditor::make('text')
-                            ->label('Deskripsi')
-                            ->placeholder('Tulis deskripsi lengkap di sini...')
-                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->disabled()
+                            ->dehydrated() // tetap dikirim saat submit
+                            ->unique(ignoreRecord: true),
 
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\TextInput::make('number')
-                                    ->label('Urutan')
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->placeholder('Misal: 1'),
-
-                                Forms\Components\Select::make('type')
-                                    ->label('Tipe Konten')
-                                    ->required()
-                                    ->options([
-                                        'Text' => 'Text',
-                                        'Number' => 'Number',
-                                        'Image' => 'Image',
-                                    ])
-                                    ->placeholder('Pilih tipe konten'),
-                            ]),
+                        Forms\Components\Select::make('type')
+                            ->label('Tipe Konten')
+                            ->required()
+                            ->options([
+                                'text' => 'Text',
+                                'number' => 'Number',
+                                'image' => 'Image',
+                            ])
+                            ->placeholder('Pilih tipe konten')
+                            ->afterStateHydrated(function (Forms\Components\Select $component, $state) {
+                                $component->state($state); // Paksa reaktivasi nilai saat load edit/view
+                            })
+                            ->reactive(), // penting agar perubahan langsung dipantau
                     ])
                     ->columns(1),
 
-                Forms\Components\Section::make('Tampilan di Website')
+                Forms\Components\Section::make('Konten')
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->label('Gambar')
                             ->image()
                             ->imagePreviewHeight('150')
-                            ->panelAspectRatio('4:1')
-                            ->panelLayout('compact')
-                            ->placeholder('Unggah gambar konten...')
-                            ->columnSpanFull(),
+                            ->required(fn(callable $get) => $get('type') === 'image')
+                            ->columnSpanFull()
+                            ->visible(fn(callable $get) => $get('type') === 'image')
+                            ->reactive(),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Tampilkan di Website?')
-                            ->default(true)
-                            ->inline(false),
+                        Forms\Components\RichEditor::make('text')
+                            ->label('Isi Konten')
+                            ->placeholder('Tulis deskripsi lengkap di sini...')
+                            ->columnSpanFull()
+                            ->required(fn(callable $get) => $get('type') === 'text')
+                            ->visible(fn(callable $get) => $get('type') === 'text')
+                            ->reactive(),
+
+
+                        Forms\Components\TextInput::make('number')
+                            ->label('Isi Konten')
+                            ->numeric()
+                            ->minValue(1)
+                            ->placeholder('Misal: 1')
+                            ->required(fn(callable $get) => $get('type') === 'number')
+                            ->visible(fn(callable $get) => $get('type') === 'number')
+                            ->reactive(),
                     ])
                     ->columns(1)
                     ->collapsible(),
@@ -86,21 +104,12 @@ class AboutUsResource extends Resource
                     ->label('Judul')
                     ->searchable(),
 
-                Tables\Columns\ImageColumn::make('image')
-                    ->label('Gambar')
-                    ->height(40),
-
-                Tables\Columns\TextColumn::make('number')
-                    ->label('Urutan')
-                    ->numeric()
-                    ->sortable(),
-
                 Tables\Columns\TextColumn::make('type')
                     ->label('Tipe'),
 
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean(),
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
