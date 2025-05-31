@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AboutUs;
 use App\Models\Member;
+use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -66,16 +67,16 @@ class ApiController extends Controller
 
     public function getProduct(Request $request)
     {
-        $product = AboutUs::all();
-
+        // Jika request punya parameter 'id'
         if ($request->has('id')) {
-            $product = AboutUs::where('id', $request->id)->first();
+            $product = Product::with('category')->where('id', $request->id)->first();
+
             if ($product) {
                 return response()->json([
                     'status' => true,
                     'code' => 200,
                     'message' => 'Data ditemukan',
-                    'data' => $product->toArray()
+                    'data' => $product
                 ]);
             } else {
                 return response()->json([
@@ -84,22 +85,27 @@ class ApiController extends Controller
                     'message' => 'Data tidak ditemukan'
                 ]);
             }
-        } else {
-            return response()->json([
-                'status' => true,
-                'code' => 200,
-                'message' => 'Data ditemukan',
-                'data' => $product
-            ]);
         }
+
+        // Query dasar
+        $query = Product::with('category');
+
+        // Jika ada parameter 'limit'
+        if ($request->has('limit')) {
+            $limit = (int) $request->limit;
+            $query->limit($limit);
+        }
+
+        $products = $query->get();
 
         return response()->json([
             'status' => true,
             'code' => 200,
             'message' => 'Data ditemukan',
-            'data' => $product
+            'data' => $products
         ]);
     }
+
 
     public function getCategory(Request $request)
     {
