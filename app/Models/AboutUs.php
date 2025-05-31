@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class AboutUs extends Model
 {
@@ -21,4 +22,13 @@ class AboutUs extends Model
         'type',
         'slug',
     ];
+
+    public function getImageAttribute($value)
+    {
+        if (request()->routeIs('filament.*')) {
+            return $value;
+        } else {
+            return env('APP_URL') . Storage::url($value);
+        }
+    }
 }
