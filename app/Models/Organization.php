@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Organization extends Model
 {
@@ -14,4 +15,13 @@ class Organization extends Model
         'name',
         'logo',
     ];
+
+    public function getLogoAttribute($value)
+    {
+        if (request()->routeIs('filament.*')) {
+            return $value;
+        } else {
+            return env('APP_URL') . Storage::url($value);
+        }
+    }
 }

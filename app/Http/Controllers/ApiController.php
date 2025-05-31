@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AboutUs;
 use App\Models\Member;
+use App\Models\Organization;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Service;
@@ -55,7 +56,7 @@ class ApiController extends Controller
 
     public function getOrganization(Request $request)
     {
-        $organization = AboutUs::all();
+        $organization = Organization::all();
 
         return response()->json([
             'status' => true,
