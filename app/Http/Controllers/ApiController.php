@@ -203,8 +203,8 @@ class ApiController extends Controller
     {
         // Mengambil produk secara acak dengan opsi limit
         $randomProduct = $request->has('limit')
-            ? Product::inRandomOrder()->limit((int) $request->limit)->get()
-            : Product::inRandomOrder()->get();
+            ? Product::inRandomOrder()->with('category')->limit((int) $request->limit)->get()
+            : Product::inRandomOrder()->with('category')->get();
 
         if ($randomProduct) {
             return response()->json([
