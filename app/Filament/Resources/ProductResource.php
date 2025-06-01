@@ -28,20 +28,18 @@ class ProductResource extends Resource
                     ->placeholder('e.g., Web Hosting Deluxe')
                     ->maxLength(255)
                     ->helperText('Enter the name of the product.'),
-
+                Forms\Components\RichEditor::make('description')
+                    ->label('Isi Konten')
+                    ->placeholder('Tulis deskripsi lengkap di sini...')
+                    ->columnSpanFull()
+                    ->required(fn(callable $get) => $get('type') === 'text')
+                    ->reactive(),
                 Forms\Components\TextInput::make('price')
                     ->label('Price (Rp)')
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
                     ->helperText('Set the price in Rupiah.'),
-
-                Forms\Components\FileUpload::make('image')
-                    ->label('Product Image')
-                    ->image()
-                    ->imagePreviewHeight('150')
-                    ->required(),
-
                 Forms\Components\Select::make('product_category_id')
                     ->label('Product Category')
                     ->relationship('category', 'name')
@@ -49,6 +47,11 @@ class ProductResource extends Resource
                     ->preload()
                     ->required()
                     ->helperText('Select a category for this product.'),
+                Forms\Components\FileUpload::make('image')
+                    ->label('Product Image')
+                    ->image()
+                    ->imagePreviewHeight('150')
+                    ->required(),
             ]);
     }
 
