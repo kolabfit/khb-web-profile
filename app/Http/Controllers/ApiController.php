@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Service;
+use App\Models\Testimonial;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller
@@ -142,6 +143,25 @@ class ApiController extends Controller
             'code' => 200,
             'message' => 'Data ditemukan',
             'data' => $service
+        ]);
+    }
+
+    public function getTestimonials(Request $request)
+    {
+        $query = Testimonial::query();
+
+        if ($request->has('limit')) {
+            $limit = (int) $request->limit;
+            $query->limit($limit);
+        }
+
+        $testimonials = $query->get();
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Data ditemukan',
+            'data' => $testimonials
         ]);
     }
 }
