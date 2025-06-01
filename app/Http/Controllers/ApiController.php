@@ -27,7 +27,7 @@ class ApiController extends Controller
                 $aboutUs = AboutUs::where('slug', $slugs)->first();
             }
 
-            if ($aboutUs->isNotEmpty()) {
+            if ($aboutUs) {
                 return response()->json([
                     'status' => true,
                     'code' => 200,
