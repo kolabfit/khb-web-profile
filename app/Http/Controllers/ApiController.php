@@ -24,7 +24,7 @@ class ApiController extends Controller
                 $aboutUs = AboutUs::whereIn('slug', $slugs)->get();
             } else {
                 // Jika slug tunggal
-                $aboutUs = AboutUs::where('slug', $slugs)->first()->get();
+                $aboutUs = AboutUs::where('slug', $slugs)->first();
             }
 
             if ($aboutUs->isNotEmpty()) {
