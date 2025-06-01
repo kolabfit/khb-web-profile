@@ -15,32 +15,44 @@ class ApiController extends Controller
 {
     public function getAboutUs(Request $request)
     {
-        $aboutUs = AboutUs::all();
-
+        // Jika ada parameter 'slug'
         if ($request->has('slug')) {
-            $aboutUs = AboutUs::where('slug', $request->slug)->first();
-            if ($aboutUs) {
+            $slugs = $request->slug;
+
+            // Jika slug dikirim sebagai array
+            if (is_array($slugs)) {
+                $aboutUs = AboutUs::whereIn('slug', $slugs)->get();
+            } else {
+                // Jika slug tunggal
+                $aboutUs = AboutUs::where('slug', $slugs)->get();
+            }
+
+            if ($aboutUs->isNotEmpty()) {
                 return response()->json([
                     'status' => true,
                     'code' => 200,
                     'message' => 'Data ditemukan',
-                    'data' => $aboutUs->toArray()
+                    'data' => $aboutUs
                 ]);
+            } else {
                 return response()->json([
                     'status' => false,
                     'code' => 404,
                     'message' => 'Data tidak ditemukan'
                 ]);
             }
-        } else {
-            return response()->json([
-                'status' => true,
-                'code' => 200,
-                'message' => 'Data ditemukan',
-                'data' => $aboutUs
-            ]);
         }
+
+        // Jika tidak ada slug, kembalikan semua data
+        $aboutUs = AboutUs::all();
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Semua data ditemukan',
+            'data' => $aboutUs
+        ]);
     }
+
 
     public function getMember(Request $request)
     {
@@ -110,7 +122,8 @@ class ApiController extends Controller
 
     public function getCategory(Request $request)
     {
-        $category = ProductCategory::with('products')->get();
+        // Hanya mengambil kategori yang memiliki produk
+        $category = ProductCategory::has('products')->get();
 
         return response()->json([
             'status' => true,
