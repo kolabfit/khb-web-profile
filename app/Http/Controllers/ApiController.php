@@ -105,6 +105,11 @@ class ApiController extends Controller
         $query = Product::with('category');
 
         if($request->has('paginate')) {
+            if($request->has('page')) {
+                $query->page((int) $request->page);
+            } else {
+                $query->page(1); // Default ke halaman 1 jika tidak ada parameter 'page'
+            }
             $paginate = (int) $request->paginate;
             $products = $query->paginate($paginate);
             return response()->json([
