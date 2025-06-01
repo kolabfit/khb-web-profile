@@ -104,6 +104,17 @@ class ApiController extends Controller
         // Query dasar
         $query = Product::with('category');
 
+        if($request->has('paginate')) {
+            $paginate = (int) $request->paginate;
+            $products = $query->paginate($paginate);
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Data ditemukan',
+                'data' => $products
+            ]);
+        }
+
         // Jika ada parameter 'limit'
         if ($request->has('limit')) {
             $limit = (int) $request->limit;
