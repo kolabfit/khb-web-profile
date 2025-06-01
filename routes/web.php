@@ -22,6 +22,8 @@ Route::prefix('api')->group(function () {
     Route::get('/service', [ApiController::class, 'getService'])->name('service.get');
     Route::get('/product', [ApiController::class, 'getProduct'])->name('product.get');
     Route::get('/testimonial', [ApiController::class, 'getTestimonials'])->name('testimonial.get');
+    Route::get('/recommended-product', [ApiController::class, 'getRecommendedProducts'])->name('recommended-product.get');
+    Route::get('/random-product', [ApiController::class, 'getRandomProduct'])->name('random-product.get');
 });
 
 require __DIR__ . '/settings.php';

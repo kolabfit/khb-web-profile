@@ -104,12 +104,7 @@ class ApiController extends Controller
         // Query dasar
         $query = Product::with('category');
 
-        if($request->has('paginate')) {
-            if($request->has('page')) {
-                $query->page((int) $request->page);
-            } else {
-                $query->page(1); // Default ke halaman 1 jika tidak ada parameter 'page'
-            }
+        if ($request->has('paginate')) {
             $paginate = (int) $request->paginate;
             $products = $query->paginate($paginate);
             return response()->json([
@@ -179,5 +174,51 @@ class ApiController extends Controller
             'message' => 'Data ditemukan',
             'data' => $testimonials
         ]);
+    }
+
+    public function getRecommendedProducts(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'limit' => 'integer|min:1|max:100',
+            'category_id' => 'integer|exists:product_categories,id',
+            'id' => 'integer|exists:products,id'
+        ]);
+        // Mengambil produk yang direkomendasikan
+        $recommendedProducts = Product::where('product_category_id', $request->category_id ?? 1)
+            ->limit($request->limit ?? 10)
+            ->where('id', '!=', $request->id ?? 1) // Menghindari produk dengan ID 1
+            ->with('category')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'code' => 200,
+            'message' => 'Data ditemukan',
+            'data' => $recommendedProducts
+        ]);
+    }
+
+    public function getRandomProduct(Request $request)
+    {
+        // Mengambil produk secara acak dengan opsi limit
+        $randomProduct = $request->has('limit')
+            ? Product::inRandomOrder()->limit((int) $request->limit)->get()
+            : Product::inRandomOrder()->get();
+
+        if ($randomProduct) {
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Data ditemukan',
+                'data' => $randomProduct
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
     }
 }
