@@ -18,6 +18,7 @@ class Product extends Model
         'image',
         'product_category_id',
         'description',
+        'link',
     ];
 
     public function category()

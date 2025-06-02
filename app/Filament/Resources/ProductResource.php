@@ -52,6 +52,11 @@ class ProductResource extends Resource
                     ->image()
                     ->imagePreviewHeight('150')
                     ->required(),
+                Forms\Components\TextInput::make('link')
+                    ->label('Product Link')
+                    ->url()
+                    ->placeholder('https://example.com/product')
+                    ->helperText('Optional: Provide a link to the product page.'),
             ]);
     }
 
