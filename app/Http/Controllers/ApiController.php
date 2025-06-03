@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\AboutUs;
+use App\Models\Blog;
 use App\Models\Member;
 use App\Models\Organization;
 use App\Models\Product;
@@ -212,6 +213,50 @@ class ApiController extends Controller
                 'code' => 200,
                 'message' => 'Data ditemukan',
                 'data' => $randomProduct
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+    }
+
+    public function getRandomBlog(Request $request)
+    {
+        // Mengambil blog secara acak dengan opsi limit
+        $randomBlog = $request->has('limit')
+            ? Blog::inRandomOrder()->limit((int) $request->limit)->with('category')->get()
+            : Blog::inRandomOrder()->with('category')->get();
+
+        if ($randomBlog) {
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Data ditemukan',
+                'data' => $randomBlog
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'code' => 404,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+    }
+
+    public function getBlogById($id)
+    {
+        // Mengambil blog berdasarkan ID
+        $blog = Blog::with('category')->find($id)->load('category');
+
+        if ($blog) {
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'message' => 'Data ditemukan',
+                'data' => $blog
             ]);
         } else {
             return response()->json([
