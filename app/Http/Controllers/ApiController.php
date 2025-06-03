@@ -225,10 +225,15 @@ class ApiController extends Controller
 
     public function getRandomBlog(Request $request)
     {
-        // Mengambil blog secara acak dengan opsi limit
-        $randomBlog = $request->has('limit')
+        // Mengambil blog secara acak dengan opsi paginate atau limit
+        if ($request->has('paginate')) {
+            $paginate = (int) $request->paginate;
+            $randomBlog = Blog::with(['category', 'user'])->orderBy('created_at', 'desc')->paginate($paginate);
+        } else {
+            $randomBlog = $request->has('limit')
             ? Blog::inRandomOrder()->limit((int) $request->limit)->with(['category', 'user'])->get()
             : Blog::inRandomOrder()->with(['category', 'user'])->get();
+        }
 
         if ($randomBlog) {
             return response()->json([
