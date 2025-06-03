@@ -227,8 +227,8 @@ class ApiController extends Controller
     {
         // Mengambil blog secara acak dengan opsi limit
         $randomBlog = $request->has('limit')
-            ? Blog::inRandomOrder()->limit((int) $request->limit)->with('category')->get()
-            : Blog::inRandomOrder()->with('category')->get();
+            ? Blog::inRandomOrder()->limit((int) $request->limit)->with(['category', 'user'])->get()
+            : Blog::inRandomOrder()->with(['category', 'user'])->get();
 
         if ($randomBlog) {
             return response()->json([
@@ -249,7 +249,7 @@ class ApiController extends Controller
     public function getBlogById($id)
     {
         // Mengambil blog berdasarkan ID
-        $blog = Blog::with('category')->find($id)->load('category');
+        $blog = Blog::with(['category', 'user'])->find($id);
 
         if ($blog) {
             return response()->json([
