@@ -275,7 +275,7 @@ class ApiController extends Controller
     public function getRecommendedBlogs(Request $request)
     {
         // Mengambil blog yang direkomendasikan
-        $recommendedBlogs = Blog::where('category_id', $request->category_id ?? 1)
+        $recommendedBlogs = Blog::where('blog_category_id', $request->category_id ?? 1)
             ->limit($request->limit ?? 10)
             ->where('id', '!=', $request->id ?? 1) // Menghindari blog dengan ID 1
             ->with(['category', 'user'])
